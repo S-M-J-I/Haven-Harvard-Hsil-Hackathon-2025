@@ -1,0 +1,23 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+crewai = "*"
+onnxruntime = "*"
+python-dotenv = "*"
+groq = "*"
+numpy = "*"
+matplotlib = "*"
+pandas = "*"
+seaborn = "*"
+scipy = "*"
+pyaudio = "*"
+openai = {extras = ["voice_helpers"], version = "*"}
+streamlit = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.11"
