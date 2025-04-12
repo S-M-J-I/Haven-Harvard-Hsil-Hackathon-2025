@@ -1,4 +1,7 @@
 import streamlit as st
+import firebase_admin
+from firebase_admin import firestore
+from firebase_admin import credentials
 import os
 import asyncio
 import pyaudio
@@ -15,6 +18,14 @@ from openai.helpers import LocalAudioPlayer
 load_dotenv()
 
 client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+cred = credentials.Certificate('./key.json')
+
+app = firebase_admin.initialize_app(cred)
+
+db = firestore.client(app=app)
+
+ref = db.collection("patients")
+docs = ref.stream()
 
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
@@ -54,6 +65,8 @@ class TherapeuticSpeechSystem:
         The user will talk to you in two ways, through text, and through their brain. A BCI device is used to listen to their brain and get their actual internal emotions. This information will be given to you as well.
         If the user seems to respond neutrally, for example: "I am fine", but their BCI input says otherwise, you are to prioritize the BCI signal more. Respond with something starting like, "I see that you are feeling something else <continuing your response>" or something similar.
 
+        At the start of the conversation, whatever the emotion of the user, always ask them how they are doing or how are they feeling. Do not bring up the emotion at the first conversation. After that, you can continue the conversation by taking the emotion of the user into account.
+        
         You will also be given a demographic profile of the user, which you will take into account while talking to them.
 
         Taking into account all that is given to you, generate a helpful and thoughtful response based on what the user says, while trying to match the appropriate tone with the user to connect to them as deeply as possible.

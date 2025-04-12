@@ -16,6 +16,7 @@ scipy = "*"
 pyaudio = "*"
 openai = {extras = ["voice_helpers"], version = "*"}
 streamlit = "*"
+firebase-admin = "*"
 
 [dev-packages]
 
