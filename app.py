@@ -14,18 +14,11 @@ import numpy as np
 from openai import AsyncOpenAI
 from dotenv import load_dotenv
 from openai.helpers import LocalAudioPlayer
+from connect import *
 
 load_dotenv()
 
 client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-cred = credentials.Certificate('./key.json')
-
-app = firebase_admin.initialize_app(cred)
-
-db = firestore.client(app=app)
-
-ref = db.collection("patients")
-docs = ref.stream()
 
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
@@ -400,27 +393,42 @@ class TherapeuticSpeechSystem:
 
     async def detect_emotion(self, user_text):
         try:
-            emotion_prompt = f"""
-            Analyze the following user statement and determine their likely emotional state.
-            Return only a single word or short phrase (1-3 words) that best describes their emotional state.
-            
-            User statement: "{user_text}"
-            
-            Emotional state:
-            """
+            # emotion_prompt = f"""
+            # Analyze the following user statement and determine their likely emotional state.
+            # Return only a single word or short phrase (1-3 words) that best describes their emotional state.
 
-            response = await client.chat.completions.create(
-                model=self.tone_model,
-                messages=[
-                    {"role": "system", "content": "You are an emotional analysis system that identifies the likely emotional state of a speaker based on their words."},
-                    {"role": "user", "content": emotion_prompt}
-                ],
-                temperature=0.3,
-                max_tokens=10
-            )
+            # User statement: "{user_text}"
 
-            emotion = response.choices[0].message.content.strip()
-            print(f"Detected emotional state: {emotion}")
+            # Emotional state:
+            # """
+
+            # response = await client.chat.completions.create(
+            #     model=self.tone_model,
+            #     messages=[
+            #         {"role": "system", "content": "You are an emotional analysis system that identifies the likely emotional state of a speaker based on their words."},
+            #         {"role": "user", "content": emotion_prompt}
+            #     ],
+            #     temperature=0.3,
+            #     max_tokens=10
+            # )
+
+            # emotion = response.choices[0].message.content.strip()
+            # print(f"Detected emotional state: {emotion}")
+            # self.detected_emotion = emotion
+            ref = db.collection("patients")
+            docs = ref.stream()
+            emotion = None
+            for doc in docs:
+                d = doc.to_dict()
+                emotion = d['emotion']
+                print(d)
+
+            if emotion == "H":
+                emotion = "happy"
+            elif emotion == "S":
+                emotion = "sad"
+            else:
+                emotion = "neutral"
             self.detected_emotion = emotion
             return emotion
 
@@ -433,6 +441,7 @@ class TherapeuticSpeechSystem:
         print(f"Detected emotion: {self.detected_emotion}")
 
         user_message = f"User said: {user_text}\nUser's emotional state appears to be: {self.detected_emotion}"
+        print("Msg", user_message)
         self.conversation_history.append(
             {"role": "user", "content": user_message})
 
@@ -598,6 +607,11 @@ def create_streamlit_app():
 
     if 'is_talking' not in st.session_state:
         st.session_state.is_talking = False
+
+    # if 'app' not in st.session_state:
+    #     print("Init app")
+
+        # print("DB", st.session_state.db)
 
     st.sidebar.title("Settings")
 

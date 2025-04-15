@@ -17,6 +17,7 @@ pyaudio = "*"
 openai = {extras = ["voice_helpers"], version = "*"}
 streamlit = "*"
 firebase-admin = "*"
+openai-agents = "*"
 
 [dev-packages]
 
