@@ -18,8 +18,15 @@ openai = {extras = ["voice_helpers"], version = "*"}
 streamlit = "*"
 firebase-admin = "*"
 openai-agents = "*"
+websocket-client = "*"
+google-adk = "*"
+google-generativeai = "*"
+beautifulsoup4 = "*"
+langchain = "*"
+pydub = "*"
 
 [dev-packages]
+ipykernel = "*"
 
 [requires]
 python_version = "3.11"
