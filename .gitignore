@@ -2,3 +2,4 @@
 .env
 key.json
 *__pycache__
+docfluent/
